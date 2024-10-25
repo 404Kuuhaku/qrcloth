@@ -3,6 +3,7 @@ import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
+import SendIcon from "@mui/icons-material/Send";
 import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
 import { useMemo } from "react";
@@ -13,6 +14,7 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 export default function UploadPage() {
 	const VisuallyHiddenInput = useMemo(() => {
@@ -30,8 +32,18 @@ export default function UploadPage() {
 	}, []);
 	return (
 		<>
-			<Box sx={{ display: "flex", width: "80vw", mx: "auto" }}>
-				<Box sx={{ mr: 30 }}>
+			<Box
+				sx={{
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+					width: "80vw",
+					height: "100vh",
+					mx: "auto",
+					// pt: 10,
+				}}
+			>
+				<Box sx={{ mx: 10 }}>
 					<Box
 						sx={{
 							width: {
@@ -49,6 +61,7 @@ export default function UploadPage() {
 							flexDirection: "column",
 							justifyContent: "center",
 							alignItems: "center",
+							mb: 5,
 							// "&:hover": {
 							// 	bgcolor: "#5b5b5b",
 							// },
@@ -80,6 +93,7 @@ export default function UploadPage() {
 						variant="contained"
 						tabIndex={-1}
 						startIcon={<CloudUploadIcon />}
+						sx={{ mr: 2 }}
 					>
 						Upload From Device
 						<VisuallyHiddenInput
@@ -100,22 +114,24 @@ export default function UploadPage() {
 						Open Camera
 					</Button>
 				</Box>
-				<Box>
+				<Box sx={{ mx: 10 }}>
 					<Stack>
 						<TextField
 							required
 							id="outlined-required"
 							label="Name"
+							sx={{ my: 1.5 }}
 						/>
 						<TextField
 							required
 							id="outlined-required"
 							label="Price"
 							type="number"
+							sx={{ my: 1.5 }}
 						/>
-						<FormControl>
+						<FormControl sx={{ my: 1.5 }}>
 							<FormLabel id="demo-row-radio-buttons-group-label">
-								Gender
+								Size
 							</FormLabel>
 							<RadioGroup
 								row
@@ -123,28 +139,39 @@ export default function UploadPage() {
 								name="row-radio-buttons-group"
 							>
 								<FormControlLabel
-									value="female"
+									value="S"
 									control={<Radio />}
-									label="Female"
+									label="S"
 								/>
 								<FormControlLabel
-									value="male"
+									value="M"
 									control={<Radio />}
-									label="Male"
+									label="M"
 								/>
 								<FormControlLabel
-									value="other"
+									value="L"
 									control={<Radio />}
-									label="Other"
+									label="L"
 								/>
 								<FormControlLabel
-									value="disabled"
-									disabled
+									value="XL"
 									control={<Radio />}
-									label="other"
+									label="XL"
 								/>
 							</RadioGroup>
 						</FormControl>
+						<Box sx={{ my: 1.5 }}>
+							<Typography gutterBottom>Expire Date</Typography>
+							<DatePicker />
+						</Box>
+
+						<Button
+							variant="contained"
+							endIcon={<SendIcon />}
+							sx={{ my: 1.5 }}
+						>
+							Send
+						</Button>
 					</Stack>
 				</Box>
 			</Box>
