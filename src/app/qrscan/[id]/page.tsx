@@ -1,9 +1,9 @@
 "use client";
+import * as React from "react";
 import { Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
-import SendIcon from "@mui/icons-material/Send";
 import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
 import { useMemo } from "react";
@@ -15,8 +15,22 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import SaveIcon from "@mui/icons-material/Save";
 
-export default function UploadPage() {
+export default function EditProductInfoPage({ params }) {
+	const { id } = React.use(params);
+
+	const [alignment, setAlignment] = React.useState("available");
+
+	const handleChange = (
+		event: React.MouseEvent<HTMLElement>,
+		newAlignment: string
+	) => {
+		setAlignment(newAlignment);
+	};
+
 	const VisuallyHiddenInput = useMemo(() => {
 		return styled("input")({
 			clip: "rect(0 0 0 0)",
@@ -38,7 +52,7 @@ export default function UploadPage() {
 				textAlign="center"
 				sx={{ pt: 10 }}
 			>
-				IMAGE UPLOAD PAGE
+				Edit Product Infomation : {id}
 			</Typography>
 			<Box
 				sx={{
@@ -69,7 +83,7 @@ export default function UploadPage() {
 							flexDirection: "column",
 							justifyContent: "center",
 							alignItems: "center",
-							mb: 5,
+							// mb: 5,
 							// "&:hover": {
 							// 	bgcolor: "#5b5b5b",
 							// },
@@ -95,7 +109,7 @@ export default function UploadPage() {
 							Product Image
 						</Typography>
 					</Box>
-					<Button
+					{/* <Button
 						component="label"
 						role={undefined}
 						variant="contained"
@@ -120,7 +134,7 @@ export default function UploadPage() {
 						startIcon={<CameraAltIcon />}
 					>
 						Open Camera
-					</Button>
+					</Button> */}
 				</Box>
 				<Box sx={{ mx: 10 }}>
 					<Stack>
@@ -172,13 +186,41 @@ export default function UploadPage() {
 							<Typography gutterBottom>Expire Date</Typography>
 							<DatePicker />
 						</Box>
+						<Box sx={{ my: 1.5 }}>
+							<ToggleButtonGroup
+								color="primary"
+								value={alignment}
+								exclusive
+								onChange={handleChange}
+								aria-label="Platform"
+							>
+								<ToggleButton
+									value="available"
+									sx={{ textTransform: "uppercase" }}
+								>
+									available
+								</ToggleButton>
+								<ToggleButton
+									value="sold-out"
+									sx={{ textTransform: "uppercase" }}
+								>
+									sold-out
+								</ToggleButton>
+								<ToggleButton
+									value="expire"
+									sx={{ textTransform: "uppercase" }}
+								>
+									expire
+								</ToggleButton>
+							</ToggleButtonGroup>
+						</Box>
 
 						<Button
 							variant="contained"
-							endIcon={<SendIcon />}
+							endIcon={<SaveIcon />}
 							sx={{ my: 1.5 }}
 						>
-							Send
+							Save
 						</Button>
 					</Stack>
 				</Box>
