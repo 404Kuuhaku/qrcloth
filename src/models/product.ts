@@ -8,6 +8,9 @@ export interface IProduct {
 	qrcode_url: string;
 	sku: string;
 	status: "available" | "unavailable" | "sold-out" | "expire";
+	buyer_name?: string;
+	buy_date?: Date;
+	expire_date: Date;
 }
 
 const ProductSchema = new Schema<IProduct>(
@@ -21,6 +24,15 @@ const ProductSchema = new Schema<IProduct>(
 			type: String,
 			enum: ["available", "unavailable", "sold-out", "expire"],
 			default: "available",
+		},
+		buyer_name: {
+			type: String,
+		},
+		buy_date: {
+			type: Date,
+		},
+		expire_date: {
+			type: Date,
 		},
 	},
 	{
