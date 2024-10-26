@@ -6,7 +6,7 @@ import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import SendIcon from "@mui/icons-material/Send";
 import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import Radio from "@mui/material/Radio";
@@ -17,6 +17,26 @@ import FormLabel from "@mui/material/FormLabel";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 export default function UploadPage() {
+	const [name, setName] = useState("");
+	const [image, setImage] = useState("");
+	const [size, setSize] = useState("");
+	const [expDate, setExpDate] = useState<Date>();
+
+	useEffect(() => {
+		const currentDate = new Date();
+		setName("jhon doe");
+		setImage("test.png");
+		setSize("s");
+		setExpDate(currentDate);
+	}, []);
+
+	useEffect(() => {
+		console.log("name", name);
+		console.log("image", image);
+		console.log("size", size);
+		console.log("expDate", expDate);
+	}, [name, image, size, expDate]);
+
 	const VisuallyHiddenInput = useMemo(() => {
 		return styled("input")({
 			clip: "rect(0 0 0 0)",
