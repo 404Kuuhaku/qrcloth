@@ -45,8 +45,17 @@ export default function UploadPage() {
 			const formData = new FormData();
 			selectedFiles.forEach((file) => formData.append("files", file));
 
+			formData.append("name", data.name);
+			formData.append("description", data.description);
+			formData.append("sku", data.sku);
+			formData.append("price", data.price);
+			formData.append("size", data.size);
+			formData.append("posted", data.posted);
+			formData.append("expire_date", data.expire_date);
+
 			const response = await axios.post(
-				"http://localhost:3000/api/image/upload",
+				// "http://localhost:3000/api/image/upload",
+				"http://localhost:3000/api/product",
 				formData,
 				{
 					headers: { "Content-Type": "multipart/form-data" },
