@@ -6,25 +6,34 @@ import path from "path";
 
 export async function POST(req: Request) {
 	const data = await req.formData();
-	const file = data.get("file") as File;
+	const files = data.getAll("files") as File[];
 
-	if (!file) {
+	if (!files.length) {
 		return NextResponse.json(
-			{ error: "No file uploaded" },
+			{ error: "No files uploaded" },
 			{ status: 400 }
 		);
 	}
 
-	const uploadsDir = path.join(process.cwd(), "src/storage");
-	const filePath = path.join(uploadsDir, file.name);
+	const uploadsDir = path.join(process.cwd(), "public/storage");
 
 	// Ensure uploads directory exists
 	if (!fs.existsSync(uploadsDir)) {
 		fs.mkdirSync(uploadsDir, { recursive: true });
 	}
 
-	const buffer = Buffer.from(await file.arrayBuffer());
-	fs.writeFileSync(filePath, buffer);
+	const fileInfos = await Promise.all(
+		files.map(async (file) => {
+			const filePath = path.join(uploadsDir, file.name);
+			const buffer = Buffer.from(await file.arrayBuffer());
+			fs.writeFileSync(filePath, buffer);
 
-	return NextResponse.json({ message: "File uploaded successfully" });
+			return { fileName: file.name, filePath };
+		})
+	);
+
+	return NextResponse.json({
+		message: "Files uploaded successfully",
+		files: fileInfos,
+	});
 }

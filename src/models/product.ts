@@ -29,6 +29,7 @@ export interface IProduct {
 	name: string;
 	details?: string;
 	price: number;
+	size: string;
 	images: IImages[];
 	qr_code_data: IQRCode;
 	sku: string;
@@ -44,6 +45,7 @@ const ProductSchema = new Schema<IProduct>(
 		name: { type: String, required: true },
 		details: { type: String },
 		price: { type: Number, required: true },
+		size: { type: String, required: true },
 		images: { type: [ImageSchema], required: true },
 		qr_code_data: { type: QRCodeSchema, required: true },
 		sku: { type: String, required: true, unique: true },
