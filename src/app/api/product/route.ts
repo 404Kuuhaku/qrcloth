@@ -8,6 +8,7 @@ import { HttpStatusCode } from "axios";
 import ProductModel, { IProduct, IImages } from "@/models/product";
 import QRCode from "qrcode";
 import strToBool from "@/libs/common/strToBool/strToBool";
+import generateSKU from "@/libs/server/skuGen/generateSKU";
 
 export async function GET() {
 	try {
@@ -60,20 +61,24 @@ export async function POST(req: NextRequest) {
 		console.log("Files uploaded successfully");
 		console.log("Files Info", fileInfos);
 
-		const postedStr = data.get("posted") as string
+		const postedStr = data.get("posted") as string;
 		const postedConverted = strToBool(postedStr);
+
+		const shirtType = data.get("shirt_type") as string;
+		const shirtSize = data.get("size") as string;
+		const skuConverted = await generateSKU(shirtType, shirtSize);
 
 		await connectMongo();
 
 		const newProductData = {
-			name: data.get("name"),
+			// name: data.get("name"),
 			details: data.get("details"),
 			price: data.get("price"),
 			size: data.get("size"),
 
 			images: imagesData,
 
-			sku: data.get("sku"),
+			sku: skuConverted,
 			posted: postedConverted,
 			expire_date: data.get("expire_date"),
 		};
@@ -81,20 +86,15 @@ export async function POST(req: NextRequest) {
 		const newProduct = new ProductModel(newProductData);
 		await newProduct.save();
 
-
 		const qrCodeUrl = `http://localhost:3000/qrscan/${newProduct._id}`;
-
-		// Generate the QR code image and save it
 		const qrCodePath = path.join(uploadsDir, `QR_${newProduct._id}.png`);
 		await QRCode.toFile(qrCodePath, qrCodeUrl);
 
-		// Update the product with QR code data
 		newProduct.qr_code_data = {
 			qrcode_url: qrCodeUrl,
 			qrcode_path: `storage/QR_${newProduct._id}.png`,
 		};
 		await newProduct.save();
-
 
 		return NextResponse.json(newProduct, { status: 201 });
 	} catch (error) {
@@ -106,20 +106,4 @@ export async function POST(req: NextRequest) {
 			{ status: HttpStatusCode.BadRequest }
 		);
 	}
-
-	// try {
-	// 	await connectMongo();
-	// 	const data: IProduct = await req.json();
-	// 	const newProduct = new ProductModel(data);
-	// 	await newProduct.save();
-	// 	return NextResponse.json(newProduct, { status: 201 });
-	// } catch (error) {
-	// 	return NextResponse.json(
-	// 		{
-	// 			message: "Error creating product",
-	// 			error: error,
-	// 		},
-	// 		{ status: HttpStatusCode.BadRequest }
-	// 	);
-	// }
 }

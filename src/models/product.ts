@@ -26,23 +26,26 @@ const QRCodeSchema = new Schema<IQRCode>(
 );
 
 export interface IProduct {
-	name: string;
-	details?: string;
-	price: number;
+	// name: string;
+	sku: string;
+	shirt_type: string;
 	size: string;
+	price: number;
+	details?: string;
+	expire_date?: Date;
+
 	images: IImages[];
 	qr_code_data?: IQRCode;
-	sku: string;
+
 	status: "available" | "unavailable" | "sold-out" | "expire";
 	posted: boolean;
 	buyer_name?: string;
 	buy_date?: Date;
-	expire_date?: Date;
 }
 
 const ProductSchema = new Schema<IProduct>(
 	{
-		name: { type: String, required: true },
+		// name: { type: String, required: true },
 		details: { type: String },
 		price: { type: Number, required: true },
 		size: { type: String, required: true },
