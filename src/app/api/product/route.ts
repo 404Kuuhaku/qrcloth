@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { HttpStatusCode } from "axios";
-import ProductModel, { IProduct, IImages } from "@/models/product";
+import ProductModel, { IImages } from "@/models/product";
 import QRCode from "qrcode";
 import strToBool from "@/libs/common/strToBool/strToBool";
 import generateSKU from "@/libs/server/skuGen/generateSKU";
