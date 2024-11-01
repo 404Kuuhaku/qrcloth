@@ -5,10 +5,10 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { HttpStatusCode } from "axios";
-import ProductModel, { IImages } from "@/models/product";
+import ProductModel from "@/models/product";
 import QRCode from "qrcode";
-import strToBool from "@/libs/common/strToBool/strToBool";
-import generateSKU from "@/libs/server/skuGen/generateSKU";
+import generateSKU from "@/libs/server/SKU/generateSKU";
+import generatePrefix from "@/libs/server/SKU/generatePrefix";
 
 export async function GET() {
 	try {
@@ -26,10 +26,110 @@ export async function GET() {
 	}
 }
 
+// export async function POST(req: NextRequest) {
+// 	try {
+// 		const data = await req.formData();
+
+// 		const files = data.getAll("files") as File[];
+// 		const quantity = parseInt((data.get("quantity") as string) || "0");
+
+// 		const shirt_key = data.get("shirt_key") as string;
+// 		const shirt_size = data.get("shirt_size") as string;
+
+// 		const prefix = await generatePrefix(shirt_key, shirt_size);
+// 		const sku = await generateSKU(prefix);
+
+// 		let image_file_path: string;
+// 		let image_url: string;
+
+// 		if (!files.length) {
+// 			return NextResponse.json(
+// 				{ error: "No files uploaded" },
+// 				{ status: 400 }
+// 			);
+// 		}
+
+// 		if (files.length != quantity) {
+// 			return NextResponse.json(
+// 				{ error: "Quantity of images quantity are inconsistent" },
+// 				{ status: 400 }
+// 			);
+// 		}
+
+// 		const uploadsDir = path.join(process.cwd(), "public/storage");
+
+// 		if (!fs.existsSync(uploadsDir)) {
+// 			fs.mkdirSync(uploadsDir, { recursive: true });
+// 		}
+
+// 		for (let index = 0; index < quantity; index++) {
+// 			const file = files[index];
+// 			const filePath = path.join(uploadsDir, file.name);
+// 			const buffer = Buffer.from(await file.arrayBuffer());
+// 			fs.writeFileSync(filePath, buffer);
+
+// 			image_file_path = filePath;
+// 			image_url = `storage/${file.name}`;
+
+// 			console.log("Files uploaded successfully");
+
+// 			await connectMongo();
+
+// 			const newProductData = {
+// 				sku,
+// 				prefix,
+// 				shirt_key,
+// 				shirt_size,
+// 				image_file_path,
+// 				image_url,
+// 			};
+
+// 			const newProduct = new ProductModel(newProductData);
+// 			await newProduct.save();
+
+// 			const qrCodeData = `http://localhost:3000/qrscan/${newProduct._id}`;
+// 			const qrCodePath = path.join(
+// 				uploadsDir,
+// 				`QR_${newProduct._id}.png`
+// 			);
+// 			await QRCode.toFile(qrCodePath, qrCodeData);
+
+// 			newProduct.qr_code_data = {
+// 				qrcode_url: `storage/QR_${newProduct._id}.png`,
+// 				qrcode_path: qrCodePath,
+// 			};
+// 			await newProduct.save();
+
+// 			return NextResponse.json(newProduct, { status: 201 });
+// 		}
+// 	} catch (error) {
+// 		return NextResponse.json(
+// 			{
+// 				message: "Error creating product",
+// 				error: error,
+// 			},
+// 			{ status: HttpStatusCode.BadRequest }
+// 		);
+// 	}
+// }
+
 export async function POST(req: NextRequest) {
 	try {
 		const data = await req.formData();
+
 		const files = data.getAll("files") as File[];
+		const quantity = parseInt((data.get("quantity") as string) || "0");
+		const shirt_key = data.get("shirt_key") as string;
+		const shirt_size = data.get("shirt_size") as string;
+
+		// Logging each part to ensure data is coming through correctly
+		console.log("Files:", files);
+		console.log("Quantity:", quantity);
+		console.log("Shirt Key:", shirt_key);
+		console.log("Shirt Size:", shirt_size);
+
+		const prefix = await generatePrefix(shirt_key, shirt_size);
+		// const sku = await generateSKU(prefix);
 
 		if (!files.length) {
 			return NextResponse.json(
@@ -38,70 +138,69 @@ export async function POST(req: NextRequest) {
 			);
 		}
 
-		const uploadsDir = path.join(process.cwd(), "public/storage");
+		if (files.length !== quantity) {
+			return NextResponse.json(
+				{
+					error: "Quantity of images and quantity value are inconsistent",
+				},
+				{ status: 400 }
+			);
+		}
 
+		const uploadsDir = path.join(process.cwd(), "public/storage");
 		if (!fs.existsSync(uploadsDir)) {
 			fs.mkdirSync(uploadsDir, { recursive: true });
 		}
 
-		const imagesData: IImages[] = [];
+		const uploadedProducts = [];
 
-		const fileInfos = await Promise.all(
-			files.map(async (file) => {
-				const filePath = path.join(uploadsDir, file.name);
-				const buffer = Buffer.from(await file.arrayBuffer());
-				fs.writeFileSync(filePath, buffer);
+		// await connectMongo();
+		for (let index = 0; index < quantity; index++) {
+			const sku = await generateSKU(prefix);
 
-				imagesData.push({ image_path: `storage/${file.name}` });
+			const file = files[index];
+			const filePath = path.join(uploadsDir, file.name);
+			const buffer = Buffer.from(await file.arrayBuffer());
+			fs.writeFileSync(filePath, buffer);
 
-				return { fileName: file.name, filePath };
-			})
-		);
+			const image_file_path = filePath;
+			const image_url = `storage/${file.name}`;
 
-		console.log("Files uploaded successfully");
-		console.log("Files Info", fileInfos);
+			await connectMongo();
 
-		const postedStr = data.get("posted") as string;
-		const postedConverted = strToBool(postedStr);
+			const newProductData = {
+				sku,
+				prefix,
+				shirt_key,
+				shirt_size,
+				image_file_path,
+				image_url,
+			};
 
-		const shirtType = data.get("shirt_type") as string;
-		const shirtSize = data.get("size") as string;
-		const skuConverted = await generateSKU(shirtType, shirtSize);
+			const newProduct = new ProductModel(newProductData);
+			await newProduct.save();
 
-		await connectMongo();
+			const qrCodeData = `http://localhost:3000/qrscan/${newProduct._id}`;
+			const qrCodePath = path.join(
+				uploadsDir,
+				`QR_${newProduct._id}.png`
+			);
+			await QRCode.toFile(qrCodePath, qrCodeData);
 
-		const newProductData = {
-			// name: data.get("name"),
-			details: data.get("details"),
-			price: data.get("price"),
-			size: data.get("size"),
+			newProduct.qrcode_url = `storage/QR_${newProduct._id}.png`;
+			newProduct.qrcode_file_path = qrCodePath;
+			await newProduct.save();
 
-			images: imagesData,
+			uploadedProducts.push(newProduct);
+		}
 
-			sku: skuConverted,
-			posted: postedConverted,
-			expire_date: data.get("expire_date"),
-		};
-
-		const newProduct = new ProductModel(newProductData);
-		await newProduct.save();
-
-		const qrCodeUrl = `http://localhost:3000/qrscan/${newProduct._id}`;
-		const qrCodePath = path.join(uploadsDir, `QR_${newProduct._id}.png`);
-		await QRCode.toFile(qrCodePath, qrCodeUrl);
-
-		newProduct.qr_code_data = {
-			qrcode_url: qrCodeUrl,
-			qrcode_path: `storage/QR_${newProduct._id}.png`,
-		};
-		await newProduct.save();
-
-		return NextResponse.json(newProduct, { status: 201 });
+		return NextResponse.json(uploadedProducts, { status: 201 });
 	} catch (error) {
+		console.error("Error creating product:", error);
 		return NextResponse.json(
 			{
 				message: "Error creating product",
-				error: error,
+				error: error instanceof Error ? error.message : "Unknown error",
 			},
 			{ status: HttpStatusCode.BadRequest }
 		);

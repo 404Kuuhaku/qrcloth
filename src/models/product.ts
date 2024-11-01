@@ -28,8 +28,8 @@ const ProductSchema = new Schema<IProduct>(
 		image_file_path: { type: String, required: true },
 		image_url: { type: String, required: true },
 
-		qrcode_file_path: { type: String, required: true },
-		qrcode_url: { type: String, required: true },
+		qrcode_file_path: { type: String },
+		qrcode_url: { type: String },
 
 		status: {
 			type: String,
