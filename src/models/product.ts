@@ -3,11 +3,13 @@ import { model, models, Schema } from "mongoose";
 
 export interface IImages {
 	image_path: string;
+	image_url: string;
 }
 
 const ImageSchema = new Schema<IImages>(
 	{
 		image_path: { type: String, required: true },
+		image_url: { type: String, required: true },
 	},
 	{ _id: false }
 );
@@ -26,50 +28,33 @@ const QRCodeSchema = new Schema<IQRCode>(
 );
 
 export interface IProduct {
-	// name: string;
 	sku: string;
-	shirt_type: string;
-	size: string;
-	price: number;
-	details?: string;
-	expire_date?: Date;
+	prefix: string;
+
+	shirt_key: string;
+	shirt_size: string;
 
 	images: IImages[];
 	qr_code_data?: IQRCode;
 
-	status: "available" | "unavailable" | "sold-out" | "expire";
-	posted: boolean;
-	buyer_name?: string;
-	buy_date?: Date;
+	status: "available" | "sold-out" | "expire";
 }
 
 const ProductSchema = new Schema<IProduct>(
 	{
-		// name: { type: String, required: true },
-		details: { type: String },
-		price: { type: Number, required: true },
-		size: { type: String, required: true },
+		sku: { type: String, required: true, unique: true },
+		prefix: { type: String, required: true },
+
+		shirt_key: { type: String, required: true },
+		shirt_size: { type: String, required: true },
+
 		images: { type: [ImageSchema], required: true },
 		qr_code_data: { type: QRCodeSchema },
-		sku: { type: String, required: true, unique: true },
+
 		status: {
 			type: String,
-			enum: ["available", "unavailable", "sold-out", "expire"],
+			enum: ["available", "sold-out", "expire"],
 			default: "available",
-		},
-		posted: {
-			type: Boolean,
-			required: true,
-			default: false,
-		},
-		buyer_name: {
-			type: String,
-		},
-		buy_date: {
-			type: Date,
-		},
-		expire_date: {
-			type: Date,
 		},
 	},
 	{

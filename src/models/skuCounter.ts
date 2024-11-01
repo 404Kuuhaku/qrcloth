@@ -3,12 +3,12 @@ import { model, models, Schema } from "mongoose";
 
 export interface ISKUCounter {
 	prefix: string;
-	sku_counter: number;
+	counter: number;
 }
 
 const SKUCounterSchema = new Schema<ISKUCounter>({
 	prefix: { type: String, required: true, unique: true },
-	sku_counter: { type: Number, default: 0 },
+	counter: { type: Number, default: 0 },
 });
 
 const SKUCounterModel =
