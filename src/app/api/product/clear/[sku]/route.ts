@@ -14,12 +14,23 @@ export async function PUT(
 
 		const sku = await params.sku;
 		const filter = { sku };
+		// const newProductData = {
+		// 	image_file_path: undefined,
+		// 	image_url: undefined,
+		// 	status: "not-active",
+		// 	expire_date: undefined,
+		// 	repeat: 1,
+		// };
 		const newProductData = {
-			image_file_path: undefined,
-			image_url: undefined,
-			status: "not-active",
-			expire_date: undefined,
-			repeat: 1,
+			$unset: {
+				image_file_path: "",
+				image_url: "",
+				expire_date: "",
+			},
+			$set: {
+				status: "not-active",
+				repeat: 1,
+			},
 		};
 		const updatedProduct = await ProductModel.findOneAndUpdate(
 			filter,
@@ -29,7 +40,7 @@ export async function PUT(
 			}
 		);
 
-        // TODOS : DELETE IMG 
+		// TODOS : DELETE IMG
 		return NextResponse.json(updatedProduct, {
 			status: HttpStatusCode.Accepted,
 		});
