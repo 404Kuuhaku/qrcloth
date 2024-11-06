@@ -11,9 +11,10 @@ import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import { Controller, useForm } from "react-hook-form";
 import axios from "axios";
+import { saveImages } from "./actions";
 
 export default function UploadPage() {
-	const { control, handleSubmit } = useForm();
+	const { register, control, handleSubmit } = useForm();
 	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
 	const handleFilesChange = (files: FileList | null) => {
@@ -24,21 +25,40 @@ export default function UploadPage() {
 	};
 
 	const onSubmit = async (data) => {
-		console.log("Form Data: ", data);
-
 		try {
-			const formData = new FormData();
-			selectedFiles.forEach((file) => formData.append("files", file));
-			formData.append("name", data.name);
+			const shirt_key = data.shirt_key.toUpperCase();
+			const shirt_size = parseInt(data.shirt_size);
+			const status_filter = "not-active";
+			const quantity = parseInt(data.quantity);
 
-			const response = await axios.post(
-				"http://localhost:3000/api/product",
-				formData,
-				{
-					headers: { "Content-Type": "multipart/form-data" },
-				}
+			const checking = await axios.get(
+				`http://localhost:3000/api/product/find/${status_filter}/${shirt_key}${shirt_size}`
 			);
-			console.log(response.data);
+
+			if (selectedFiles.length !== quantity) {
+				throw new Error("Quantity and image quantity not match");
+			}
+
+			if (checking.data.count < quantity) {
+				throw new Error("Don't have enough slot to add products");
+			}
+
+			const imgDetails = await saveImages(selectedFiles);
+
+			imgDetails.forEach(async (image) => {
+				const image_file_path = image.image_file_path;
+				const image_url = image.image_url;
+
+				const response = await axios.put(
+					`http://localhost:3000/api/product/upload/${status_filter}/${shirt_key}${shirt_size}`,
+					{
+						image_file_path,
+						image_url,
+						status: "available",
+					}
+				);
+				console.log(response.data);
+			});
 		} catch (error) {
 			console.error("Error uploading files:", error);
 		}
@@ -195,9 +215,21 @@ export default function UploadPage() {
 					{/* Product Details Section */}
 					<Box sx={{ mx: 2, width: { xs: "100%", md: "50%" } }}>
 						<Stack spacing={2}>
-							<TextField required label="Product ID" />
-							<TextField required label="Shirt Size" />
-							<TextField required label="Quantity" />
+							<TextField
+								required
+								label="Product ID"
+								{...register("shirt_key")}
+							/>
+							<TextField
+								required
+								label="Shirt Size"
+								{...register("shirt_size")}
+							/>
+							<TextField
+								required
+								label="Quantity"
+								{...register("quantity")}
+							/>
 							<Button
 								variant="contained"
 								endIcon={<SendIcon />}

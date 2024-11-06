@@ -5,16 +5,30 @@ import { NextRequest, NextResponse } from "next/server";
 import { HttpStatusCode } from "axios";
 import ProductModel, { IProduct } from "@/models/product";
 
+interface ProductQuery {
+	status?: string;
+	prefix?: string;
+	sku?: string;
+}
+
 export async function PUT(
 	req: NextRequest,
-	{ params }: { params: { sku: string } }
+	{ params }: { params: Promise<{ slug: string }> }
 ) {
 	try {
 		// TODOS : MAKE FOR LOOP
 		await connectMongo();
 
-		const sku = await params.sku;
-		const filter = { sku };
+		const { slug } = await params;
+		const [status, prefix] = slug || [];
+		const filter: ProductQuery = {};
+		if (status) filter.status = status;
+		if (prefix) filter.prefix = prefix;
+		console.log("query", filter);
+
+		// const sku = await params.sku;
+		// const filter = { sku };
+
 		const data: IProduct = await req.json();
 		const uploadedProduct = await ProductModel.findOneAndUpdate(
 			filter,
@@ -22,7 +36,14 @@ export async function PUT(
 			{
 				new: true,
 			}
-		);
+		).sort({ shirt_number: 1 });
+		// const uploadedProduct = await ProductModel.findOneAndUpdate(
+		// 	filter,
+		// 	data,
+		// 	{
+		// 		new: true,
+		// 	}
+		// );
 
 		// TODOS : UPLOAD IMG
 		return NextResponse.json(uploadedProduct, {

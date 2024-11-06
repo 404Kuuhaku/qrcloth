@@ -1,11 +1,12 @@
 // src/app/upload/actions.ts
+"use server";
 
 import fs from "fs";
 import path from "path";
 // import { generateSKU } from "./path/to/skuGenerator"; // Update with your actual path
 
 export async function saveImages(files: File[]) {
-	const uploadsDir = path.join(process.cwd(), "public/storage");
+	const uploadsDir = path.join(process.cwd(), "public/storage/image");
 	if (!fs.existsSync(uploadsDir)) {
 		fs.mkdirSync(uploadsDir, { recursive: true });
 	}
@@ -19,7 +20,7 @@ export async function saveImages(files: File[]) {
 
 		imageDetails.push({
 			image_file_path: filePath,
-			image_url: `storage/${file.name}`,
+			image_url: `storage/image/${file.name}`,
 		});
 	}
 
