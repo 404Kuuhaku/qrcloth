@@ -86,7 +86,6 @@ export default function EditProductInfoPage({ params }) {
         <Box sx={{ width: { xs: "auto", md: "auto" }, px: { xs: 1, sm: 3, md: 5 } }}>
           <Stack spacing={2}>
             <TextField
-              required
               disabled
               id="outlined-required"
               label="SKU"
