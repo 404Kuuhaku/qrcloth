@@ -1,388 +1,204 @@
 "use client";
-import * as React from "react";
-import { alpha } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
-import TableRow from "@mui/material/TableRow";
-import TableSortLabel from "@mui/material/TableSortLabel";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Paper from "@mui/material/Paper";
-import Checkbox from "@mui/material/Checkbox";
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Switch from "@mui/material/Switch";
-import DeleteIcon from "@mui/icons-material/Delete";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import { visuallyHidden } from "@mui/utils";
 
-interface Data {
+import React, { useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Checkbox,
+  Button,
+  Box,
+  TextField,
+  TablePagination,
+} from '@mui/material';
+
+interface RowData {
   sku: string;
-  sku_with_underscore: string;
-  shirt_number: number;
+  name: string;
+  type: string;
+  size: number;
+  status: "available", "working", "sold-out", "expire", "not-active"
+  image_url : string;
 }
 
-function createData(
-  sku: string,
-  sku_with_underscorer: string;
-  shirt_number: number;
-): Data {
-  return {
-    
-  };
-}
-
-const rows = [
-  createData(1, "Cupcake", 305, 3.7, 67, 4.3),
+// Sample data for the table
+const initialRows: RowData[] = [
+  { id: 1, name: 'John Doe', age: 25, role: 'Developer', image: 'https://via.placeholder.com/50' },
+  { id: 2, name: 'Jane Smith', age: 30, role: 'Designer', image: 'https://via.placeholder.com/50' },
+  { id: 3, name: 'Alice Johnson', age: 35, role: 'Product Manager', image: 'https://via.placeholder.com/50' },
+  { id: 4, name: 'Bob Brown', age: 40, role: 'Tester', image: 'https://via.placeholder.com/50' },
+  { id: 1, name: 'John Doe', age: 25, role: 'Developer', image: 'https://via.placeholder.com/50' },
+  { id: 2, name: 'Jane Smith', age: 30, role: 'Designer', image: 'https://via.placeholder.com/50' },
+  { id: 3, name: 'Alice Johnson', age: 35, role: 'Product Manager', image: 'https://via.placeholder.com/50' },
+  { id: 4, name: 'Bob Brown', age: 40, role: 'Tester', image: 'https://via.placeholder.com/50' },
+  { id: 1, name: 'John Doe', age: 25, role: 'Developer', image: 'https://via.placeholder.com/50' },
+  { id: 2, name: 'Jane Smith', age: 30, role: 'Designer', image: 'https://via.placeholder.com/50' },
+  { id: 3, name: 'Alice Johnson', age: 35, role: 'Product Manager', image: 'https://via.placeholder.com/50' },
+  { id: 4, name: 'Bob Brown', age: 40, role: 'Tester', image: 'https://via.placeholder.com/50' },
+  { id: 1, name: 'John Doe', age: 25, role: 'Developer', image: 'https://via.placeholder.com/50' },
+  { id: 2, name: 'Jane Smith', age: 30, role: 'Designer', image: 'https://via.placeholder.com/50' },
+  { id: 3, name: 'Alice Johnson', age: 35, role: 'Product Manager', image: 'https://via.placeholder.com/50' },
+  { id: 4, name: 'Bob Brown', age: 40, role: 'Tester', image: 'https://via.placeholder.com/50' },
+  { id: 1, name: 'John Doe', age: 25, role: 'Developer', image: 'https://via.placeholder.com/50' },
+  { id: 2, name: 'Jane Smith', age: 30, role: 'Designer', image: 'https://via.placeholder.com/50' },
+  { id: 3, name: 'Alice Johnson', age: 35, role: 'Product Manager', image: 'https://via.placeholder.com/50' },
+  { id: 4, name: 'Bob Brown', age: 40, role: 'Tester', image: 'https://via.placeholder.com/50' },
+  { id: 1, name: 'John Doe', age: 25, role: 'Developer', image: 'https://via.placeholder.com/50' },
+  { id: 2, name: 'Jane Smith', age: 30, role: 'Designer', image: 'https://via.placeholder.com/50' },
+  { id: 3, name: 'Alice Johnson', age: 35, role: 'Product Manager', image: 'https://via.placeholder.com/50' },
+  { id: 4, name: 'Bob Brown', age: 40, role: 'Tester', image: 'https://via.placeholder.com/50' },
+  { id: 1, name: 'John Doe', age: 25, role: 'Developer', image: 'https://via.placeholder.com/50' },
+  { id: 2, name: 'Jane Smith', age: 30, role: 'Designer', image: 'https://via.placeholder.com/50' },
+  { id: 3, name: 'Alice Johnson', age: 35, role: 'Product Manager', image: 'https://via.placeholder.com/50' },
+  { id: 4, name: 'Bob Brown', age: 40, role: 'Tester', image: 'https://via.placeholder.com/50' },
+  { id: 1, name: 'John Doe', age: 25, role: 'Developer', image: 'https://via.placeholder.com/50' },
+  { id: 2, name: 'Jane Smith', age: 30, role: 'Designer', image: 'https://via.placeholder.com/50' },
+  { id: 3, name: 'Alice Johnson', age: 35, role: 'Product Manager', image: 'https://via.placeholder.com/50' },
+  { id: 4, name: 'Bob Brown', age: 40, role: 'Tester', image: 'https://via.placeholder.com/50' },
 ];
 
-function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
+const MyTablePage: React.FC = () => {
+  const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const [filters, setFilters] = useState({ id: '', name: '', age: '', role: '' });
+  const [page, setPage] = useState(0);
+  const rowsPerPage = 20;
 
-type Order = "asc" | "desc";
+  // Handle Checkbox Changes
+  const handleCheckboxChange = (id: number) => {
+    setSelectedRows((prevSelected) =>
+      prevSelected.includes(id)
+        ? prevSelected.filter((rowId) => rowId !== id)
+        : [...prevSelected, id]
+    );
+  };
 
-function getComparator<Key extends keyof any>(
-  order: Order,
-  orderBy: Key
-): (
-  a: { [key in Key]: number | string },
-  b: { [key in Key]: number | string }
-) => number {
-  return order === "desc"
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
+  // Handle Download Selected Images
+  const handleDownloadImages = () => {
+    const selectedImages = initialRows
+      .filter((row) => selectedRows.includes(row.id))
+      .map((row) => row.image);
 
-interface HeadCell {
-  disablePadding: boolean;
-  id: keyof Data;
-  label: string;
-  numeric: boolean;
-}
+    selectedImages.forEach((imageUrl, index) => {
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = `image-${index + 1}.jpg`;
+      link.click();
+    });
+  };
 
-const headCells: readonly HeadCell[] = [
-  {
-    id: "name",
-    numeric: false,
-    disablePadding: true,
-    label: "Dessert (100g serving)",
-  },
-  {
-    id: "calories",
-    numeric: true,
-    disablePadding: false,
-    label: "Calories",
-  },
-  {
-    id: "fat",
-    numeric: true,
-    disablePadding: false,
-    label: "Fat (g)",
-  },
-  {
-    id: "carbs",
-    numeric: true,
-    disablePadding: false,
-    label: "Carbs (g)",
-  },
-  {
-    id: "protein",
-    numeric: true,
-    disablePadding: false,
-    label: "Protein (g)",
-  },
-];
+  // Update filters for each column
+  const handleFilterChange = (column: keyof typeof filters, value: string) => {
+    setFilters({ ...filters, [column]: value });
+  };
 
-interface EnhancedTableProps {
-  numSelected: number;
-  onRequestSort: (
-    event: React.MouseEvent<unknown>,
-    property: keyof Data
-  ) => void;
-  onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  order: Order;
-  orderBy: string;
-  rowCount: number;
-}
-
-function EnhancedTableHead(props: EnhancedTableProps) {
-  const {
-    onSelectAllClick,
-    order,
-    orderBy,
-    numSelected,
-    rowCount,
-    onRequestSort,
-  } = props;
-  const createSortHandler =
-    (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
-      onRequestSort(event, property);
-    };
-
-  return (
-    <TableHead>
-      <TableRow>
-        <TableCell padding="checkbox">
-          <Checkbox
-            color="primary"
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{
-              "aria-label": "select all desserts",
-            }}
-          />
-        </TableCell>
-        {headCells.map((headCell) => (
-          <TableCell
-            key={headCell.id}
-            align={headCell.numeric ? "right" : "left"}
-            padding={headCell.disablePadding ? "none" : "normal"}
-            sortDirection={orderBy === headCell.id ? order : false}
-          >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : "asc"}
-              onClick={createSortHandler(headCell.id)}
-            >
-              {headCell.label}
-              {orderBy === headCell.id ? (
-                <Box component="span" sx={visuallyHidden}>
-                  {order === "desc" ? "sorted descending" : "sorted ascending"}
-                </Box>
-              ) : null}
-            </TableSortLabel>
-          </TableCell>
-        ))}
-      </TableRow>
-    </TableHead>
+  // Filter rows based on the filter criteria
+  const filteredRows = initialRows.filter((row) =>
+    Object.entries(filters).every(([key, value]) => {
+      if (key === 'age') {
+        return value === '' || row[key as keyof RowData].toString().includes(value);
+      }
+      return value === '' || (row[key as keyof RowData] as string).toLowerCase().includes(value.toLowerCase());
+    })
   );
-}
-interface EnhancedTableToolbarProps {
-  numSelected: number;
-}
-function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
-  const { numSelected } = props;
-  return (
-    <Toolbar
-      sx={[
-        {
-          pl: { sm: 2 },
-          pr: { xs: 1, sm: 1 },
-        },
-        numSelected > 0 && {
-          bgcolor: (theme) =>
-            alpha(
-              theme.palette.primary.main,
-              theme.palette.action.activatedOpacity
-            ),
-        },
-      ]}
-    >
-      {numSelected > 0 ? (
-        <Typography
-          sx={{ flex: "1 1 100%" }}
-          color="inherit"
-          variant="subtitle1"
-          component="div"
-        >
-          {numSelected} selected
-        </Typography>
-      ) : (
-        <Typography
-          sx={{ flex: "1 1 100%" }}
-          variant="h6"
-          id="tableTitle"
-          component="div"
-        >
-          Nutrition
-        </Typography>
-      )}
-      {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton>
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
-      )}
-    </Toolbar>
-  );
-}
-export default function EnhancedTable() {
-  const [order, setOrder] = React.useState<Order>("asc");
-  const [orderBy, setOrderBy] = React.useState<keyof Data>("calories");
-  const [selected, setSelected] = React.useState<readonly number[]>([]);
-  const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
-  const handleRequestSort = (
-    event: React.MouseEvent<unknown>,
-    property: keyof Data
-  ) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
-  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      const newSelected = rows.map((n) => n.id);
-      setSelected(newSelected);
-      return;
-    }
-    setSelected([]);
-  };
-
-  const handleClick = (event: React.MouseEvent<unknown>, id: number) => {
-    const selectedIndex = selected.indexOf(id);
-    let newSelected: readonly number[] = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-    setSelected(newSelected);
-  };
-
+  // Pagination handling
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDense(event.target.checked);
-  };
-
-  // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
-
-  const visibleRows = React.useMemo(
-    () =>
-      [...rows]
-        .sort(getComparator(order, orderBy))
-        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [order, orderBy, page, rowsPerPage]
-  );
+  // Paginated rows
+  const paginatedRows = filteredRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
-    <Box sx={{ width: "100%" }}>
-      <Paper sx={{ width: "100%", mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
-        <TableContainer>
-          <Table
-            sx={{ minWidth: 750 }}
-            aria-labelledby="tableTitle"
-            size={dense ? "small" : "medium"}
-          >
-            <EnhancedTableHead
-              numSelected={selected.length}
-              order={order}
-              orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
-              onRequestSort={handleRequestSort}
-              rowCount={rows.length}
-            />
-            <TableBody>
-              {visibleRows.map((row, index) => {
-                const isItemSelected = selected.includes(row.id);
-                const labelId = `enhanced-table-checkbox-${index}`;
+    <TableContainer component={Paper} sx={{ maxWidth: 800, margin: 'auto', mt: 5 }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" px={2} pt={2}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleDownloadImages}
+          disabled={selectedRows.length === 0}
+        >
+          Download Selected Images
+        </Button>
+        
+        <Box display="flex" gap={2}>
+          <TextField
+            label="Filter by ID"
+            variant="outlined"
+            size="small"
+            value={filters.id}
+            onChange={(e) => handleFilterChange('id', e.target.value)}
+          />
+          <TextField
+            label="Filter by Name"
+            variant="outlined"
+            size="small"
+            value={filters.name}
+            onChange={(e) => handleFilterChange('name', e.target.value)}
+          />
+          <TextField
+            label="Filter by Age"
+            variant="outlined"
+            size="small"
+            value={filters.age}
+            onChange={(e) => handleFilterChange('age', e.target.value)}
+          />
+          <TextField
+            label="Filter by Role"
+            variant="outlined"
+            size="small"
+            value={filters.role}
+            onChange={(e) => handleFilterChange('role', e.target.value)}
+          />
+        </Box>
+      </Box>
 
-                return (
-                  <TableRow
-                    hover
-                    onClick={(event) => handleClick(event, row.id)}
-                    role="checkbox"
-                    aria-checked={isItemSelected}
-                    tabIndex={-1}
-                    key={row.id}
-                    selected={isItemSelected}
-                    sx={{ cursor: "pointer" }}
-                  >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        color="primary"
-                        checked={isItemSelected}
-                        inputProps={{
-                          "aria-labelledby": labelId,
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      id={labelId}
-                      scope="row"
-                      padding="none"
-                    >
-                      {row.name}
-                    </TableCell>
-                    <TableCell align="right">{row.calories}</TableCell>
-                    <TableCell align="right">{row.fat}</TableCell>
-                    <TableCell align="right">{row.carbs}</TableCell>
-                    <TableCell align="right">{row.protein}</TableCell>
-                  </TableRow>
-                );
-              })}
-              {emptyRows > 0 && (
-                <TableRow
-                  style={{
-                    height: (dense ? 33 : 53) * emptyRows,
-                  }}
-                >
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Dense padding"
+      <Table aria-label="filterable table">
+        <TableHead>
+          <TableRow>
+            <TableCell>Select</TableCell>
+            <TableCell>ID</TableCell>
+            <TableCell>Name</TableCell>
+            <TableCell>Age</TableCell>
+            <TableCell>Role</TableCell>
+            <TableCell>Image</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {paginatedRows.map((row) => (
+            <TableRow key={row.id}>
+              <TableCell padding="checkbox">
+                <Checkbox
+                  checked={selectedRows.includes(row.id)}
+                  onChange={() => handleCheckboxChange(row.id)}
+                />
+              </TableCell>
+              <TableCell>{row.id}</TableCell>
+              <TableCell>{row.name}</TableCell>
+              <TableCell>{row.age}</TableCell>
+              <TableCell>{row.role}</TableCell>
+              <TableCell>
+                <img src={row.image} alt={row.name} width={50} height={50} />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <TablePagination
+        rowsPerPageOptions={[rowsPerPage]}
+        component="div"
+        count={filteredRows.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
       />
-    </Box>
+    </TableContainer>
   );
-}
+};
+
+export default MyTablePage;
