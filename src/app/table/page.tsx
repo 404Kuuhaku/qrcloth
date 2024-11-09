@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import {
 	Table,
@@ -28,31 +27,34 @@ interface RowData {
 	image_url: string;
 }
 
-// // Sample data for the table
-// const initialRows: RowData[] = Array.from({ length: 100 }, (_, index) => ({
-// 	sku: `SKU${String(index + 1).padStart(3, "0")}`,
-// 	type: ["B", "NV", "TS", "HW"][index % 4] as RowData["type"],
-// 	status: ["available", "working", "sold-out", "expire", "not-active"][
-// 		index % 5
-// 	] as RowData["status"],
-// 	image_url: `https://via.placeholder.com/50?text=Prod+${index + 1}`,
-// }));
-
 const MyTablePage: React.FC = () => {
 	const [loading, setLoading] = useState(true);
 	const [rows, setRows] = useState<RowData[]>([]);
-	const [dbPagination, setDbPagination] = useState();
+	const [filters, setFilters] = useState({
+		status: "",
+		type: "",
+		size: "",
+	});
+	const [selectedRows, setSelectedRows] = useState<string[]>([]); // Track selected rows
+	const [page, setPage] = useState(0);
+	const [debounceTimeout, setDebounceTimeout] =
+		useState<NodeJS.Timeout | null>(null);
+	const rowsPerPage = 50;
+
+	// Fetch data with filters
 	useEffect(() => {
 		const fetchData = async () => {
 			setLoading(true);
 			try {
+				// Send filters to the backend in the API request
 				const response = await axios.get(
-					`http://localhost:3000/api/product/table`
+					`http://localhost:3000/api/product/table?page=${
+						page + 1
+					}&status=${filters.status}&type=${filters.type}&size=${
+						filters.size
+					}`
 				);
-				// console.log(response.data.products);
-				console.log(response.data);
-				setRows(response.data.products);
-				setDbPagination(response.data.pagination);
+				setRows(response.data.products); // Set the filtered rows returned by the API
 			} catch (error) {
 				console.error(error);
 			}
@@ -60,117 +62,67 @@ const MyTablePage: React.FC = () => {
 		};
 
 		fetchData();
-	}, []);
+	}, []); // Fetch data when filters or page change
 
-	const [selectedRows, setSelectedRows] = useState<string[]>([]);
-	const [filters, setFilters] = useState({
-		status: "",
-		type: "",
-		size: "",
-	});
-	const [page, setPage] = useState(0);
-	const [popupVisible, setPopupVisible] = useState(true);
-	const [newStatus, setNewStatus] = useState<RowData["status"]>("available");
-	const rowsPerPage = 50;
+	useEffect(() => {
+		const fetchData = async () => {
+			setLoading(true);
+			try {
+				const response = await axios.get(
+					`http://localhost:3000/api/product/table?page=${
+						page + 1
+					}&status=${filters.status}&type=${filters.type}&size=${
+						filters.size
+					}`
+				);
+				setRows(response.data.products); // Set the filtered rows returned by the API
+			} catch (error) {
+				console.error(error);
+			}
+			setLoading(false);
+		};
 
-	// Handle Checkbox Changes
+		// Debouncing the fetch request to avoid unnecessary calls
+		if (debounceTimeout) {
+			clearTimeout(debounceTimeout); // Clear the previous timeout
+		}
+		setDebounceTimeout(setTimeout(fetchData, 500)); // Wait 500ms after the last change
+
+		return () => {
+			if (debounceTimeout) {
+				clearTimeout(debounceTimeout); // Clean up on component unmount
+			}
+		};
+	}, [filters, page]); // Fetch data when filters or page change
+
+	// Handle row selection/unselection
 	const handleCheckboxChange = (sku: string) => {
 		setSelectedRows((prevSelected) => {
 			const isSelected = prevSelected.includes(sku);
-			const updatedSelection = isSelected
-				? prevSelected.filter((rowId) => rowId !== sku)
-				: [...prevSelected, sku];
-
-			setPopupVisible(updatedSelection.length > 0);
-			console.log(updatedSelection);
-			return updatedSelection;
+			if (isSelected) {
+				return prevSelected.filter((row) => row !== sku); // Deselect row
+			} else {
+				return [...prevSelected, sku]; // Select row
+			}
 		});
 	};
 
-	// Change the status of selected rows to the selected status
-	// const handleChangeStatus = () => {
-	// 	initialRows.forEach((row) => {
-	// 		if (selectedRows.includes(row.sku)) {
-	// 			row.status = newStatus;
-	// 		}
-	// 	});
-	// 	setPopupVisible(true);
-	// 	setSelectedRows([]);
-	// };
-	const handleChangeStatus = () => {
-		setRows((prevRows) =>
-			prevRows.map((row) => {
-				if (selectedRows.includes(row.sku)) {
-					return { ...row, status: newStatus }; // Update the status
-				}
-				return row;
-			})
-		);
-		setPopupVisible(true);
-		setSelectedRows([]);
+	useEffect(() => {
+		console.log("selectedRows", selectedRows);
+	}, [selectedRows]);
+
+	// Handle pagination change
+	const handleChangePage = (event: unknown, newPage: number) => {
+		setPage(newPage);
 	};
 
-	// Update filters for each column
+	// Handle filter changes
 	const handleFilterChange = (
 		column: keyof typeof filters,
 		value: string
 	) => {
 		setFilters({ ...filters, [column]: value });
 	};
-
-	// Filter rows based on the filter criteria
-	// const filteredRows = initialRows.filter((row) =>
-	// 	Object.entries(filters).every(([key, value]) => {
-	// 		if (key === "size" && value !== "") {
-	// 			return row.size === parseInt(value);
-	// 		} else if (key === "type" || key === "status") {
-	// 			return (
-	// 				value === "" ||
-	// 				(row[key as keyof RowData]?.toString().toLowerCase() ??
-	// 					"") === value.toLowerCase()
-	// 			);
-	// 		}
-	// 		return (
-	// 			value === "" ||
-	// 			(
-	// 				row[key as keyof RowData]?.toString().toLowerCase() ?? ""
-	// 			).includes(value.toLowerCase())
-	// 		);
-	// 	})
-	// );
-	const filteredRows = rows.filter((row) =>
-		Object.entries(filters).every(([key, value]) => {
-			if (key === "size" && value !== "") {
-				return row.size === parseInt(value);
-			} else if (key === "type" || key === "status") {
-				return (
-					value === "" ||
-					(row[key as keyof RowData]?.toString().toLowerCase() ??
-						"") === value.toLowerCase()
-				);
-			}
-			return (
-				value === "" ||
-				(
-					row[key as keyof RowData]?.toString().toLowerCase() ?? ""
-				).includes(value.toLowerCase())
-			);
-		})
-	);
-
-	// Pagination handling
-	const handleChangePage = (event: unknown, newPage: number) => {
-		setPage(newPage);
-	};
-
-	// const paginatedRows = filteredRows.slice(
-	// 	page * rowsPerPage,
-	// 	page * rowsPerPage + rowsPerPage
-	// );
-	const paginatedRows = filteredRows.slice(
-		page * rowsPerPage,
-		page * rowsPerPage + rowsPerPage
-	);
 
 	return (
 		<>
@@ -179,10 +131,7 @@ const MyTablePage: React.FC = () => {
 					variant="h6"
 					component="h2"
 					textAlign="center"
-					sx={{
-						pt: { xs: 5, md: 10 },
-						fontSize: { xs: "1.5rem", md: "2rem" },
-					}}
+					sx={{ pt: 5 }}
 				>
 					Loading...
 				</Typography>
@@ -257,7 +206,6 @@ const MyTablePage: React.FC = () => {
 						<Button
 							variant="outlined"
 							color="secondary"
-							onClick={() => setSelectedRows([])}
 							style={{ marginLeft: "3vw" }}
 						>
 							Clear Selection
@@ -265,14 +213,13 @@ const MyTablePage: React.FC = () => {
 						<Button
 							variant="outlined"
 							color="secondary"
-							// onClick={() => }
 							style={{ marginLeft: "1vw" }}
 						>
 							Download selected QR
 						</Button>
 					</Box>
 
-					<Table aria-label="filterable table">
+					<Table aria-label="table with data">
 						<TableHead>
 							<TableRow>
 								<TableCell>Select</TableCell>
@@ -282,16 +229,16 @@ const MyTablePage: React.FC = () => {
 							</TableRow>
 						</TableHead>
 						<TableBody>
-							{paginatedRows.map((row) => (
+							{rows.map((row) => (
 								<TableRow key={row.sku}>
 									<TableCell padding="checkbox">
 										<Checkbox
 											checked={selectedRows.includes(
 												row.sku
-											)}
+											)} // Check if the row is selected
 											onChange={() =>
 												handleCheckboxChange(row.sku)
-											}
+											} // Handle selection change
 										/>
 									</TableCell>
 									<TableCell>{row.sku}</TableCell>
@@ -316,61 +263,11 @@ const MyTablePage: React.FC = () => {
 					<TablePagination
 						rowsPerPageOptions={[rowsPerPage]}
 						component="div"
-						count={filteredRows.length}
+						count={rows.length} // Count rows from the API response
 						rowsPerPage={rowsPerPage}
 						page={page}
 						onPageChange={handleChangePage}
-						// count={dbPagination?.totalItems || 0}
-						// rowsPerPage={rowsPerPage}
-						// page={dbPagination?.currentPage || 0}
-						// onPageChange={handleChangePage}
 					/>
-
-					{/* Popup Box */}
-					{popupVisible && (
-						<Box
-							sx={{
-								position: "fixed",
-								right: 20,
-								top: "20%",
-								transform: "translateY(-50%)",
-								width: 200,
-								padding: 2,
-								backgroundColor: "#B8B8B8",
-								boxShadow: 3,
-								borderRadius: 1,
-								display: "flex",
-								flexDirection: "column",
-								alignItems: "center",
-								gap: 2,
-							}}
-						>
-							<Select
-								value={newStatus}
-								onChange={(e) =>
-									setNewStatus(
-										e.target.value as RowData["status"]
-									)
-								}
-								fullWidth
-							>
-								<MenuItem value="available">Available</MenuItem>
-								<MenuItem value="working">Working</MenuItem>
-								<MenuItem value="sold-out">Sold Out</MenuItem>
-								<MenuItem value="expire">Expire</MenuItem>
-								<MenuItem value="not-active">
-									Not Active
-								</MenuItem>
-							</Select>
-							<Button
-								variant="contained"
-								color="secondary"
-								onClick={handleChangeStatus}
-							>
-								Update Status
-							</Button>
-						</Box>
-					)}
 				</TableContainer>
 			)}
 		</>
