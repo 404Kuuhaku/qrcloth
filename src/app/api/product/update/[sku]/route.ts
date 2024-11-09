@@ -1,4 +1,4 @@
-// src/app/api/product/clear/[sku]/route.ts
+// src/app/api/product/update/[sku]/route.ts
 
 import connectMongo from "@/libs/mongo/connectMongo";
 import { NextRequest, NextResponse } from "next/server";
