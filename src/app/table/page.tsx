@@ -14,6 +14,8 @@ import {
 	TextField,
 	TablePagination,
 	Typography,
+	Select,
+	MenuItem,
 } from "@mui/material";
 import axios from "axios";
 
@@ -47,6 +49,8 @@ const MyTablePage: React.FC = () => {
 	const [page, setPage] = useState(0);
 	const [debounceTimeout, setDebounceTimeout] =
 		useState<NodeJS.Timeout | null>(null);
+	const [popupVisible, setPopupVisible] = useState(true);
+	const [newStatus, setNewStatus] = useState<RowData["status"]>("available");
 	const rowsPerPage = 50;
 
 	// Fetch data with filters
@@ -112,6 +116,9 @@ const MyTablePage: React.FC = () => {
 				return [...prevSelected, sku]; // Select row
 			}
 		});
+
+		const updatedSelection = selectedRows;
+		setPopupVisible(updatedSelection.length > 0);
 	};
 
 	useEffect(() => {
@@ -132,9 +139,40 @@ const MyTablePage: React.FC = () => {
 	};
 
 	// Function to call API and update selected products' status
-	const handleUpdateStatusToWorking = async () => {
+	// const handleUpdateStatusToWorking = async () => {
+	// 	const fetchData = async () => {
+	// 		// setLoading(true);
+	// 		try {
+	// 			const response = await axios.get(
+	// 				`http://localhost:3000/api/product/table?page=${
+	// 					page + 1
+	// 				}&status=${filters.status}&type=${filters.type}&size=${
+	// 					filters.size
+	// 				}`
+	// 			);
+	// 			setRows(response.data.products); // Set the filtered rows returned by the API
+	// 		} catch (error) {
+	// 			console.error(error);
+	// 		}
+	// 		// setLoading(false);
+	// 	};
+
+	// 	try {
+	// 		const response = await axios.put(
+	// 			"http://localhost:3000/api/product/update-after-dowload",
+	// 			selectedRows // Send the list of selected SKUs
+	// 		);
+	// 		console.log("Updated products:", response.data);
+
+	// 		fetchData();
+
+	// 		setSelectedRows([]);
+	// 	} catch (error) {
+	// 		console.error("Error updating products:", error);
+	// 	}
+	// };
+	const handleUpdateStatus = async (status: string) => {
 		const fetchData = async () => {
-			// setLoading(true);
 			try {
 				const response = await axios.get(
 					`http://localhost:3000/api/product/table?page=${
@@ -143,17 +181,16 @@ const MyTablePage: React.FC = () => {
 						filters.size
 					}`
 				);
-				setRows(response.data.products); // Set the filtered rows returned by the API
+				setRows(response.data.products);
 			} catch (error) {
 				console.error(error);
 			}
-			// setLoading(false);
 		};
 
 		try {
 			const response = await axios.put(
 				"http://localhost:3000/api/product/update-after-dowload",
-				selectedRows // Send the list of selected SKUs
+				{ skuList: selectedRows, status } // Send SKUs and the status
 			);
 			console.log("Updated products:", response.data);
 
@@ -176,7 +213,33 @@ const MyTablePage: React.FC = () => {
 		});
 
 		// After downloading, update the status of all selected products to 'working'
-		handleUpdateStatusToWorking();
+		handleUpdateStatus("working");
+	};
+
+	// Change the status of selected rows to the selected status
+	const handleChangeStatus = () => {
+		setPopupVisible(true);
+		console.log("newStatus", newStatus);
+
+		// if (selectedRows.length <= 0) {
+		// 	// console.log(selectedRows);
+		// 	console.log("no product selected");
+		// }
+
+		if (selectedRows.length > 0) {
+			handleUpdateStatus(newStatus);
+		} else {
+			// console.log(selectedRows);
+			console.log("no product selected");
+		}
+
+		// initialRows.forEach((row) => {
+		// 	if (selectedRows.includes(row.sku)) {
+		// 		row.status = newStatus;
+		// 	}
+		// });
+		// setPopupVisible(true);
+		// setSelectedRows([]);
 	};
 
 	return (
@@ -327,6 +390,52 @@ const MyTablePage: React.FC = () => {
 						page={page}
 						onPageChange={handleChangePage}
 					/>
+
+					{/* Popup Box */}
+					{popupVisible && (
+						<Box
+							sx={{
+								position: "fixed",
+								right: 20,
+								top: "20%",
+								transform: "translateY(-50%)",
+								width: 200,
+								padding: 2,
+								backgroundColor: "#B8B8B8",
+								boxShadow: 3,
+								borderRadius: 1,
+								display: "flex",
+								flexDirection: "column",
+								alignItems: "center",
+								gap: 2,
+							}}
+						>
+							<Select
+								value={newStatus}
+								onChange={(e) =>
+									setNewStatus(
+										e.target.value as RowData["status"]
+									)
+								}
+								fullWidth
+							>
+								<MenuItem value="available">Available</MenuItem>
+								<MenuItem value="working">Working</MenuItem>
+								<MenuItem value="sold-out">Sold Out</MenuItem>
+								<MenuItem value="expire">Expire</MenuItem>
+								<MenuItem value="not-active">
+									Not Active
+								</MenuItem>
+							</Select>
+							<Button
+								variant="contained"
+								color="secondary"
+								onClick={handleChangeStatus}
+							>
+								Update Status
+							</Button>
+						</Box>
+					)}
 				</TableContainer>
 			)}
 		</>
