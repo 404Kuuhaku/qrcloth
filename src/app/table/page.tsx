@@ -131,7 +131,41 @@ const MyTablePage: React.FC = () => {
 		setFilters({ ...filters, [column]: value });
 	};
 
-	// Download selected QR codes
+	// Function to call API and update selected products' status
+	const handleUpdateStatusToWorking = async () => {
+		const fetchData = async () => {
+			// setLoading(true);
+			try {
+				const response = await axios.get(
+					`http://localhost:3000/api/product/table?page=${
+						page + 1
+					}&status=${filters.status}&type=${filters.type}&size=${
+						filters.size
+					}`
+				);
+				setRows(response.data.products); // Set the filtered rows returned by the API
+			} catch (error) {
+				console.error(error);
+			}
+			// setLoading(false);
+		};
+
+		try {
+			const response = await axios.put(
+				"http://localhost:3000/api/product/update-after-dowload",
+				selectedRows // Send the list of selected SKUs
+			);
+			console.log("Updated products:", response.data);
+
+			fetchData();
+
+			setSelectedRows([]);
+		} catch (error) {
+			console.error("Error updating products:", error);
+		}
+	};
+
+	// Modify the handleDownloadQRs function to call the update status API after downloads
 	const handleDownloadQRs = () => {
 		selectedRows.forEach((sku) => {
 			// Find the row with the selected SKU and get the qrcode_url
@@ -140,6 +174,9 @@ const MyTablePage: React.FC = () => {
 				downloadQRCode(selectedRow.qrcode_url); // Use the qrcode_url from the API response
 			}
 		});
+
+		// After downloading, update the status of all selected products to 'working'
+		handleUpdateStatusToWorking();
 	};
 
 	return (
@@ -225,6 +262,9 @@ const MyTablePage: React.FC = () => {
 							variant="outlined"
 							color="secondary"
 							style={{ marginLeft: "3vw" }}
+							onClick={() => {
+								setSelectedRows([]);
+							}}
 						>
 							Clear Selection
 						</Button>
