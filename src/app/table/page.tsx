@@ -14,13 +14,13 @@ import {
   Box,
   TextField,
   TablePagination,
+  Select,
+  MenuItem,
 } from "@mui/material";
 
 interface RowData {
   sku: string;
-  // name: string;
-  // type: string;
-  // size: number;
+  type: string;
   status: "available" | "working" | "sold-out" | "expire" | "not-active";
   image_url: string;
 }
@@ -28,55 +28,47 @@ interface RowData {
 // Sample data for the table
 const initialRows: RowData[] = Array.from({ length: 100 }, (_, index) => ({
   sku: `SKU${String(index + 1).padStart(3, "0")}`,
-  // name: `Product ${index + 1}`,
-  // type: ["B", "NV", "TS", "HW"][index % 4
-  // ] as RowData["type"],
-  // size: Math.floor(Math.random() * 100) + 1, // Random size between 1 and 100
+  type: ["B", "NV", "TS", "HW"][index % 4] as RowData["type"],
   status: ["available", "working", "sold-out", "expire", "not-active"][
     index % 5
   ] as RowData["status"],
-  image_url: `https://via.placeholder.com/50?text=Prod+${index + 1}`, // Placeholder image URL with text
+  image_url: `https://via.placeholder.com/50?text=Prod+${index + 1}`,
 }));
 
 const MyTablePage: React.FC = () => {
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [filters, setFilters] = useState({
-    sku: "",
-    name: "",
-    type: "",
     status: "",
+    type: "",
+    size: "",
   });
   const [page, setPage] = useState(0);
+  const [popupVisible, setPopupVisible] = useState(true);
+  const [newStatus, setNewStatus] = useState<RowData["status"]>("available");
   const rowsPerPage = 50;
 
   // Handle Checkbox Changes
-  const handleCheckboxChange = (id: number) => {
+  const handleCheckboxChange = (sku: string) => {
     setSelectedRows((prevSelected) => {
-      const isSelected = prevSelected.includes(id);
+      const isSelected = prevSelected.includes(sku);
       const updatedSelection = isSelected
-        ? prevSelected.filter((rowId) => rowId !== id)
-        : [...prevSelected, id];
+        ? prevSelected.filter((rowId) => rowId !== sku)
+        : [...prevSelected, sku];
 
-      // Log the selected row data
-      const selectedRow = initialRows.find((row) => row.id === id);
-      console.log("Selected Row:", selectedRow);
-
+      setPopupVisible(updatedSelection.length > 0);
       return updatedSelection;
     });
   };
 
-  // Handle Download Selected Images
-  const handleDownloadImages = () => {
-    const selectedImages = initialRows
-      .filter((row) => selectedRows.includes(row.sku))
-      .map((row) => row.image_url);
-
-    selectedImages.forEach((imageUrl, index) => {
-      const link = document.createElement("a");
-      link.href = imageUrl;
-      link.download = `image-${index + 1}.jpg`;
-      link.click();
+  // Change the status of selected rows to the selected status
+  const handleChangeStatus = () => {
+    initialRows.forEach((row) => {
+      if (selectedRows.includes(row.sku)) {
+        row.status = newStatus;
+      }
     });
+    setPopupVisible(true);
+    setSelectedRows([]);
   };
 
   // Update filters for each column
@@ -87,11 +79,20 @@ const MyTablePage: React.FC = () => {
   // Filter rows based on the filter criteria
   const filteredRows = initialRows.filter((row) =>
     Object.entries(filters).every(([key, value]) => {
+      if (key === "size" && value !== "") {
+        return row.size === parseInt(value);
+      } else if (key === "type" || key === "status") {
+        return (
+          value === "" ||
+          (row[key as keyof RowData]?.toString().toLowerCase() ?? "") ===
+            value.toLowerCase()
+        );
+      }
       return (
         value === "" ||
-        (row[key as keyof RowData] as string)
-          .toLowerCase()
-          .includes(value.toLowerCase())
+        (row[key as keyof RowData]?.toString().toLowerCase() ?? "").includes(
+          value.toLowerCase()
+        )
       );
     })
   );
@@ -101,7 +102,6 @@ const MyTablePage: React.FC = () => {
     setPage(newPage);
   };
 
-  // Paginated rows
   const paginatedRows = filteredRows.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
@@ -119,15 +119,6 @@ const MyTablePage: React.FC = () => {
         px={2}
         pt={2}
       >
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleDownloadImages}
-          disabled={selectedRows.length === 0}
-        >
-          Download Selected Images
-        </Button>
-
         <Box display="flex" gap={2}>
           {/* Dropdown for Status */}
           <TextField
@@ -141,7 +132,7 @@ const MyTablePage: React.FC = () => {
               native: true,
             }}
           >
-            <option value="">All</option>
+            <option value=""></option>
             <option value="available">Available</option>
             <option value="working">Working</option>
             <option value="sold-out">Sold Out</option>
@@ -161,7 +152,7 @@ const MyTablePage: React.FC = () => {
               native: true,
             }}
           >
-            <option value="">All</option>
+            <option value=""></option>
             <option value="B">B</option>
             <option value="NV">NV</option>
             <option value="TS">TS</option>
@@ -169,15 +160,31 @@ const MyTablePage: React.FC = () => {
           </TextField>
 
           {/* Number Input for Size */}
-          <TextField
+          {/* <TextField
             label="Filter by Size"
             variant="outlined"
             size="small"
             type="number"
             value={filters.size}
             onChange={(e) => handleFilterChange("size", e.target.value)}
-          />
+          /> */}
         </Box>
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={() => setSelectedRows([])}
+          style={{ marginLeft : '3vw'}}
+        >
+          Clear Selection
+        </Button>
+        <Button
+          variant="outlined"
+          color="secondary"
+          // onClick={() => }
+          style={{ marginLeft : '1vw'}}
+        >
+          Download selected QR
+        </Button>
       </Box>
 
       <Table aria-label="filterable table">
@@ -185,9 +192,6 @@ const MyTablePage: React.FC = () => {
           <TableRow>
             <TableCell>Select</TableCell>
             <TableCell>SKU</TableCell>
-            {/* <TableCell>Name</TableCell>
-            <TableCell>Type</TableCell>
-            <TableCell>Size</TableCell> */}
             <TableCell>Image</TableCell>
             <TableCell>Status</TableCell>
           </TableRow>
@@ -202,9 +206,6 @@ const MyTablePage: React.FC = () => {
                 />
               </TableCell>
               <TableCell>{row.sku}</TableCell>
-              {/* <TableCell>{row.name}</TableCell>
-              <TableCell>{row.type}</TableCell>
-              <TableCell>{row.size}</TableCell> */}
               <TableCell>
                 <Box
                   sx={{
@@ -231,6 +232,46 @@ const MyTablePage: React.FC = () => {
         page={page}
         onPageChange={handleChangePage}
       />
+
+      {/* Popup Box */}
+      {popupVisible && (
+        <Box
+          sx={{
+            position: "fixed",
+            right: 20,
+            top: "50%",
+            transform: "translateY(-50%)",
+            width: 200,
+            padding: 2,
+            backgroundColor: "#B8B8B8",
+            boxShadow: 3,
+            borderRadius: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
+          <Select
+            value={newStatus}
+            onChange={(e) => setNewStatus(e.target.value as RowData["status"])}
+            fullWidth
+          >
+            <MenuItem value="available">Available</MenuItem>
+            <MenuItem value="working">Working</MenuItem>
+            <MenuItem value="sold-out">Sold Out</MenuItem>
+            <MenuItem value="expire">Expire</MenuItem>
+            <MenuItem value="not-active">Not Active</MenuItem>
+          </Select>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleChangeStatus}
+          >
+            Update Status
+          </Button>
+        </Box>
+      )}
     </TableContainer>
   );
 };
