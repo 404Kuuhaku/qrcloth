@@ -56,6 +56,7 @@ const MyTablePage: React.FC = () => {
         : [...prevSelected, sku];
 
       setPopupVisible(updatedSelection.length > 0);
+      console.log(updatedSelection);
       return updatedSelection;
     });
   };
@@ -173,7 +174,7 @@ const MyTablePage: React.FC = () => {
           variant="outlined"
           color="secondary"
           onClick={() => setSelectedRows([])}
-          style={{ marginLeft : '3vw'}}
+          style={{ marginLeft: "3vw" }}
         >
           Clear Selection
         </Button>
@@ -181,7 +182,7 @@ const MyTablePage: React.FC = () => {
           variant="outlined"
           color="secondary"
           // onClick={() => }
-          style={{ marginLeft : '1vw'}}
+          style={{ marginLeft: "1vw" }}
         >
           Download selected QR
         </Button>
@@ -239,7 +240,7 @@ const MyTablePage: React.FC = () => {
           sx={{
             position: "fixed",
             right: 20,
-            top: "50%",
+            top: "20%",
             transform: "translateY(-50%)",
             width: 200,
             padding: 2,
