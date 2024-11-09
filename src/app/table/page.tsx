@@ -13,8 +13,6 @@ import {
 	Box,
 	TextField,
 	TablePagination,
-	Select,
-	MenuItem,
 	Typography,
 } from "@mui/material";
 import axios from "axios";
@@ -25,7 +23,17 @@ interface RowData {
 	size: number;
 	status: "available" | "working" | "sold-out" | "expire" | "not-active";
 	image_url: string;
+	qrcode_url: string;
 }
+
+// Function to download QR code image
+const downloadQRCode = (url: string) => {
+	const link = document.createElement("a");
+	// link.href = `/storage/qrcode/${url}`; // Use the URL returned from the API
+	link.href = `${url}`; // Use the URL returned from the API
+	link.download = url.split("/").pop() || "qrcode.png"; // Get the file name from the URL
+	link.click(); // Trigger the download
+};
 
 const MyTablePage: React.FC = () => {
 	const [loading, setLoading] = useState(true);
@@ -46,7 +54,6 @@ const MyTablePage: React.FC = () => {
 		const fetchData = async () => {
 			setLoading(true);
 			try {
-				// Send filters to the backend in the API request
 				const response = await axios.get(
 					`http://localhost:3000/api/product/table?page=${
 						page + 1
@@ -62,7 +69,7 @@ const MyTablePage: React.FC = () => {
 		};
 
 		fetchData();
-	}, []); // Fetch data when filters or page change
+	}, [filters, page]); // Fetch data when filters or page change
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -122,6 +129,17 @@ const MyTablePage: React.FC = () => {
 		value: string
 	) => {
 		setFilters({ ...filters, [column]: value });
+	};
+
+	// Download selected QR codes
+	const handleDownloadQRs = () => {
+		selectedRows.forEach((sku) => {
+			// Find the row with the selected SKU and get the qrcode_url
+			const selectedRow = rows.find((row) => row.sku === sku);
+			if (selectedRow) {
+				downloadQRCode(selectedRow.qrcode_url); // Use the qrcode_url from the API response
+			}
+		});
 	};
 
 	return (
@@ -214,6 +232,7 @@ const MyTablePage: React.FC = () => {
 							variant="outlined"
 							color="secondary"
 							style={{ marginLeft: "1vw" }}
+							onClick={handleDownloadQRs} // Trigger download for selected QR codes
 						>
 							Download selected QR
 						</Button>
