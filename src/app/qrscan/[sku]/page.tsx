@@ -156,7 +156,8 @@ export default function EditProductInfoPage({
 										}}
 									/>
 									<Typography
-										variant="h6"
+										// variant="h6"
+										variant="h5"
 										textAlign="center"
 										sx={{ color: "#121212", mt: 1 }}
 									>
