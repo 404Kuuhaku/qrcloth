@@ -158,6 +158,7 @@ export default function EditProductInfoPage({
 									<Typography
 										// variant="h6"
 										variant="h5"
+										component="h2"
 										textAlign="center"
 										sx={{ color: "#121212", mt: 1 }}
 									>

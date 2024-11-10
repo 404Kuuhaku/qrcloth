@@ -75,6 +75,7 @@ export default function UploadPage() {
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<Typography
 					variant="h4"
+					component="h4"
 					textAlign="center"
 					sx={{ pt: 5, fontSize: "2rem" }}
 				>
@@ -121,6 +122,7 @@ export default function UploadPage() {
 									/>
 									<Typography
 										variant="body1"
+										component="div"
 										sx={{ color: "#121212", mt: 1 }}
 									>
 										Product Image
