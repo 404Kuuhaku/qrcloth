@@ -82,7 +82,8 @@ export default function EditProductInfoPage({
 		<>
 			{loading ? (
 				<Typography
-					variant="h6"
+					// variant="h6"
+					variant="h5"
 					component="h2"
 					textAlign="center"
 					sx={{
