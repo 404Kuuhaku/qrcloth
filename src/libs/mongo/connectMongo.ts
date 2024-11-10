@@ -2,7 +2,8 @@
 import mongoose from "mongoose";
 
 // const MONGO_URI = `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@cloth.4eqg3.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority`;
-const MONGO_URI = `mongodb://localhost:27017/QRcloth`;
+// const MONGO_URI = `mongodb://localhost:27017/QRcloth`;
+const MONGO_URI = `mongodb://localhost:27017/${process.env.MONGO_DB}`;
 
 
 const cached: {
