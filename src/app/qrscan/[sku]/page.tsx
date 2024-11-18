@@ -29,7 +29,6 @@ export default function EditProductInfoPage({
 	const [skuProduct, setSkuProduct] = useState("");
 	const [alignment, setAlignment] = useState("");
 	const [imgUrl, setImgUrl] = useState("");
-	// const [ showImage , setShowingImage ] = React.useState('');
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -50,8 +49,6 @@ export default function EditProductInfoPage({
 
 		fetchData();
 	}, [skuUpperCase]);
-
-	// console.log(imgUrl);
 
 	const handleUpdate = async () => {
 		console.log("status", alignment);
@@ -82,7 +79,6 @@ export default function EditProductInfoPage({
 		<>
 			{loading ? (
 				<Typography
-					// variant="h6"
 					variant="h5"
 					component="h2"
 					textAlign="center"
@@ -156,7 +152,6 @@ export default function EditProductInfoPage({
 										}}
 									/>
 									<Typography
-										// variant="h6"
 										variant="h5"
 										component="h2"
 										textAlign="center"
@@ -179,7 +174,6 @@ export default function EditProductInfoPage({
 
 										backgroundImage: `url(/${imgUrl})`,
 										backgroundRepeat: "no-repeat",
-										// backgroundImage: imgUrl,
 										backgroundSize: "cover",
 										backgroundPosition: "center",
 									}}

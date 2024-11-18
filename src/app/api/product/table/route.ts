@@ -35,7 +35,6 @@ export async function GET(req: NextRequest) {
 			.skip(skip)
 			.limit(limit);
 
-		// Optionally, get the total count for pagination info
 		const totalCount = await ProductModel.countDocuments(filter);
 		const totalPages = Math.ceil(totalCount / limit);
 		return NextResponse.json({

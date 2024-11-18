@@ -16,7 +16,6 @@ export async function PUT(
 	{ params }: { params: Promise<{ slug: string }> }
 ) {
 	try {
-		// TODOS : MAKE FOR LOOP
 		await connectMongo();
 
 		const { slug } = await params;
@@ -26,9 +25,6 @@ export async function PUT(
 		if (prefix) filter.prefix = prefix;
 		console.log("query", filter);
 
-		// const sku = await params.sku;
-		// const filter = { sku };
-
 		const data: IProduct = await req.json();
 		const uploadedProduct = await ProductModel.findOneAndUpdate(
 			filter,
@@ -37,15 +33,7 @@ export async function PUT(
 				new: true,
 			}
 		).sort({ shirt_number: 1 });
-		// const uploadedProduct = await ProductModel.findOneAndUpdate(
-		// 	filter,
-		// 	data,
-		// 	{
-		// 		new: true,
-		// 	}
-		// );
 
-		// TODOS : UPLOAD IMG
 		return NextResponse.json(uploadedProduct, {
 			status: HttpStatusCode.Accepted,
 		});
@@ -59,23 +47,3 @@ export async function PUT(
 		);
 	}
 }
-
-// export async function DELETE(
-// 	req: NextRequest,
-// 	{ params }: { params: { sku: string } }
-// ) {
-// 	try {
-// 		await connectMongo();
-// 		const sku = await params.sku;
-// 		await ProductModel.findByIdAndDelete(sku);
-// 		return NextResponse.json({ message: "Product deleted" });
-// 	} catch (error) {
-// 		return NextResponse.json(
-// 			{
-// 				message: "Error deleting product",
-// 				error: error,
-// 			},
-// 			{ status: HttpStatusCode.BadRequest }
-// 		);
-// 	}
-// }

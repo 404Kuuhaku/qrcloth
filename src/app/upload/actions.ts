@@ -3,7 +3,6 @@
 
 import fs from "fs";
 import path from "path";
-// import { generateSKU } from "./path/to/skuGenerator"; // Update with your actual path
 
 export async function saveImages(files: File[]) {
 	const uploadsDir = path.join(process.cwd(), "public/storage/image");

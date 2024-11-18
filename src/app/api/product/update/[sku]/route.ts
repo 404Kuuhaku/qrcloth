@@ -3,7 +3,7 @@
 import connectMongo from "@/libs/mongo/connectMongo";
 import { NextRequest, NextResponse } from "next/server";
 import { HttpStatusCode } from "axios";
-import ProductModel, { IProduct } from "@/models/product";
+import ProductModel from "@/models/product";
 
 export async function GET(
 	req: NextRequest,
@@ -28,39 +28,6 @@ export async function GET(
 	}
 }
 
-// export async function PUT(
-// 	req: NextRequest,
-// 	{ params }: { params: { sku: string } }
-// ) {
-// 	try {
-// 		await connectMongo();
-
-// 		const sku = await params.sku;
-// 		const filter = { sku };
-// 		const data: IProduct = await req.json();
-// 		const updatedProduct = await ProductModel.findOneAndUpdate(
-// 			filter,
-// 			data,
-// 			{
-// 				new: true,
-// 			}
-// 		);
-
-// 		// TODOS : UPLOAD NEW IMG IF IT'S HAS AND CHANG IMG AND PATH ALSO
-// 		return NextResponse.json(updatedProduct, {
-// 			status: HttpStatusCode.Accepted,
-// 		});
-// 	} catch (error) {
-// 		return NextResponse.json(
-// 			{
-// 				message: "Error updating product",
-// 				error: error,
-// 			},
-// 			{ status: HttpStatusCode.BadRequest }
-// 		);
-// 	}
-// }
-
 export async function PUT(
 	req: NextRequest,
 	{ params }: { params: { sku: string } }
@@ -69,7 +36,6 @@ export async function PUT(
 		await connectMongo();
 		const sku = await params.sku;
 		const { status }: { status: string } = await req.json();
-		// Validate status value
 		if (
 			![
 				"available",
@@ -85,7 +51,6 @@ export async function PUT(
 			);
 		}
 
-		// Find the product by SKU
 		const product = await ProductModel.findOne({ sku });
 
 		if (!product) {
@@ -95,13 +60,9 @@ export async function PUT(
 			);
 		}
 
-		// Prepare the update object
 		const updateData: any = { status };
 
-		// If transitioning from 'expire' to 'working', increment the repeat field
 		if (product.status === "expire" && status === "working") {
-			// updateData.$inc = { repeat: 1 }; // Increment repeat by 1
-
 			const updatedProduct = await ProductModel.findOneAndUpdate(
 				{ sku },
 				{ $set: updateData, $inc: { repeat: 1 } },
@@ -122,7 +83,6 @@ export async function PUT(
 			});
 		}
 	} catch (error) {
-		// Error handling
 		return NextResponse.json(
 			{
 				message: "Error updating product",

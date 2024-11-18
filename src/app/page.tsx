@@ -1,6 +1,5 @@
 "use client";
-import { Box, Typography } from "@mui/material";
-import Image from "next/image";
+import { Typography } from "@mui/material";
 
 export default function Home() {
 	return (
