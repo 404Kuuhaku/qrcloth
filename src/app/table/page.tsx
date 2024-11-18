@@ -26,6 +26,7 @@ interface RowData {
 	status: "available" | "working" | "sold-out" | "expire" | "not-active";
 	image_url: string;
 	qrcode_url: string;
+	repeat : number;
 }
 
 // Function to download QR code image
@@ -349,6 +350,7 @@ const MyTablePage: React.FC = () => {
 								<TableCell>SKU</TableCell>
 								<TableCell>Image</TableCell>
 								<TableCell>Status</TableCell>
+								<TableCell>Reused</TableCell>						
 							</TableRow>
 						</TableHead>
 						<TableBody>
@@ -378,6 +380,7 @@ const MyTablePage: React.FC = () => {
 										/>
 									</TableCell>
 									<TableCell>{row.status}</TableCell>
+									<TableCell>{row.repeat}</TableCell>
 								</TableRow>
 							))}
 						</TableBody>
