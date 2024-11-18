@@ -233,7 +233,7 @@ export default function EditProductInfoPage({
 											Sold-out
 										</ToggleButton>
 										<ToggleButton
-											value="expired"
+											value="expire"
 											sx={{ textTransform: "uppercase" }}
 										>
 											Expired

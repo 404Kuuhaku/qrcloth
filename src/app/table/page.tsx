@@ -76,6 +76,8 @@ const MyTablePage: React.FC = () => {
 		fetchData();
 	}, [filters, page]); // Fetch data when filters or page change
 
+	// console.log(rows);
+
 	useEffect(() => {
 		const fetchData = async () => {
 			setLoading(true);
@@ -387,7 +389,7 @@ const MyTablePage: React.FC = () => {
 											sx={{
 												width: 100,
 												height: 100,
-												backgroundImage: `url(${row.image_url})`,
+												backgroundImage: `url(/${row.image_url})`,
 												backgroundRepeat: "no-repeat",
 												backgroundSize: "cover",
 												backgroundPosition: "center",
