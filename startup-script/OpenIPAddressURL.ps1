@@ -8,7 +8,8 @@ $url = "http://$ip`:$port/$path"
 
 Start-Process $url
 
-$projectPath = "E:\Workspace\FastWork Project\qrcloth"  # Replace this with the path to your project
+# $projectPath = "E:\Workspace\FastWork Project\qrcloth"  # Replace this with the path to your project
+$projectPath = "C:\Users\Kuuhaku\Desktop\Dev\TonyStack\qrcloth"  # Replace this with the path to your project
 Set-Location -Path $projectPath
 
 # Run the 'npm run dev' command
