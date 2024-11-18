@@ -26,7 +26,7 @@ interface RowData {
 	status: "available" | "working" | "sold-out" | "expire" | "not-active";
 	image_url: string;
 	qrcode_url: string;
-	repeat : number;
+	repeat: number;
 }
 
 // Function to download QR code image
@@ -160,7 +160,7 @@ const MyTablePage: React.FC = () => {
 
 	// 	try {
 	// 		const response = await axios.put(
-	// 			"http://localhost:3000/api/product/update-after-dowload",
+	// 			"http://localhost:3000/api/product/updateMany",
 	// 			selectedRows // Send the list of selected SKUs
 	// 		);
 	// 		console.log("Updated products:", response.data);
@@ -189,8 +189,23 @@ const MyTablePage: React.FC = () => {
 		};
 
 		try {
+			if (status === "not-active") {
+				const response = await axios.put(
+					`http://localhost:3000/api/product/clearMany`,
+					{ skuList: selectedRows, status }
+				);
+				// console.log(response);
+				console.log("Clear Slots:", response.data);
+
+				fetchData();
+
+				setSelectedRows([]);
+
+				return;
+			}
+
 			const response = await axios.put(
-				"http://localhost:3000/api/product/update-after-dowload",
+				"http://localhost:3000/api/product/updateMany",
 				{ skuList: selectedRows, status } // Send SKUs and the status
 			);
 			console.log("Updated products:", response.data);
@@ -350,7 +365,7 @@ const MyTablePage: React.FC = () => {
 								<TableCell>SKU</TableCell>
 								<TableCell>Image</TableCell>
 								<TableCell>Status</TableCell>
-								<TableCell>Reused</TableCell>						
+								<TableCell>Reused</TableCell>
 							</TableRow>
 						</TableHead>
 						<TableBody>
