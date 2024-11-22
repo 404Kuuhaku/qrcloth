@@ -187,7 +187,7 @@ export default function UploadPage() {
               )}
             </Box>
 
-            {/* Hidden Input for Device File Upload */}
+            {/* Hidden Input for Device File Upload
             <Controller
               name="files"
               control={control}
@@ -213,7 +213,7 @@ export default function UploadPage() {
                   />
                 </Button>
               )}
-            />
+            /> */}
 
             {/* Camera Input for Mobile Devices */}
             <Button
