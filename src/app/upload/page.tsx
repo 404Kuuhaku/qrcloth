@@ -90,13 +90,13 @@ export default function UploadPage() {
 				}}
 			>
 				<List>
-					<ListItem button component="a" href="/table">
+					<ListItem  component="a" href="/table">
 						<ListItemText primary="Table" />
 					</ListItem>
-					<ListItem button component="a" href="/upload">
+					<ListItem  component="a" href="/upload">
 						<ListItemText primary="Upload" />
 					</ListItem>
-					<ListItem button component="a" href="/qrscan">
+					<ListItem  component="a" href="/qrscan">
 						<ListItemText primary="QR Scan" />
 					</ListItem>
 				</List>

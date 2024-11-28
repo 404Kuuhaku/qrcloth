@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import ClientLocalizationProvider from "@/components/provider/date/ClientLocalizationProvider";
+// import ClientLocalizationProvider from "@/components/provider/date/ClientLocalizationProvider";
 
 export const metadata: Metadata = {
 	title: "Create Next App",
@@ -16,9 +16,10 @@ export default function RootLayout({
 			<body
 			// className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
-				<ClientLocalizationProvider>
+				{/* <ClientLocalizationProvider>
 					{children}
-				</ClientLocalizationProvider>
+				</ClientLocalizationProvider> */}
+				{children}
 			</body>
 		</html>
 	);

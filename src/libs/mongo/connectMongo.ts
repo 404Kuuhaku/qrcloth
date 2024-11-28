@@ -11,11 +11,21 @@ const cached: {
 	promise?: Promise<typeof mongoose>;
 } = {};
 async function connectMongo() {
-	if (!MONGO_URI) {
+	if (
+		!process.env.MONGO_USERNAME ||
+		!process.env.MONGO_PASSWORD ||
+		!process.env.MONGO_DB
+	) {
 		throw new Error(
-			"Please define the MONGO_URI environment variable inside .env.local"
+			"Missing required environment variables for MongoDB connection."
 		);
 	}
+
+	// if (!MONGO_URI) {
+	// 	throw new Error(
+	// 		"Please define the MONGO_URI environment variable inside .env.local"
+	// 	);
+	// }
 	if (cached.connection) {
 		return cached.connection;
 	}

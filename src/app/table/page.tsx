@@ -85,7 +85,7 @@ const MyTablePage: React.FC = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			setLoading(true);
+			// setLoading(true);
 			try {
 				const response = await axios.get(
 					`http://localhost:3000/api/product/table?page=${
@@ -98,7 +98,7 @@ const MyTablePage: React.FC = () => {
 			} catch (error) {
 				console.error(error);
 			}
-			setLoading(false);
+			// setLoading(false);
 		};
 
 		if (debounceTimeout) {
@@ -240,13 +240,13 @@ const MyTablePage: React.FC = () => {
 						}}
 					>
 						<List>
-							<ListItem button component="a" href="/table">
+							<ListItem component="a" href="/table">
 								<ListItemText primary="Table" />
 							</ListItem>
-							<ListItem button component="a" href="/upload">
+							<ListItem component="a" href="/upload">
 								<ListItemText primary="Upload" />
 							</ListItem>
-							<ListItem button component="a" href="/qrscan">
+							<ListItem component="a" href="/qrscan">
 								<ListItemText primary="QR Scan" />
 							</ListItem>
 						</List>
@@ -281,13 +281,13 @@ const MyTablePage: React.FC = () => {
 						}}
 					>
 						<List>
-							<ListItem button component="a" href="/table">
+							<ListItem component="a" href="/table">
 								<ListItemText primary="Table" />
 							</ListItem>
-							<ListItem button component="a" href="/upload">
+							<ListItem component="a" href="/upload">
 								<ListItemText primary="Upload" />
 							</ListItem>
-							<ListItem button component="a" href="/qrscan">
+							<ListItem component="a" href="/qrscan">
 								<ListItemText primary="QR Scan" />
 							</ListItem>
 						</List>
